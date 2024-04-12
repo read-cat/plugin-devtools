@@ -2,11 +2,10 @@ const fs = require('fs');
 const { join, relative } = require('path');
 const crypto = require('crypto');
 const { gzipSync } = require('zlib');
-const { name, version, version_code } = require('./package.json');
+const pkg = require('./package.json');
 const { execSync } = require('child_process');
 
 const FILE_HEAD = Buffer.from([0x52, 0x50, 0x44, 0x54]);
-const branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf-8' }).trim();
 const commitId = execSync('git log -1 --pretty=format:%H', { encoding: 'utf-8' }).trim();
 
 const dist = join(__dirname, 'dist');
@@ -36,12 +35,15 @@ for (const file of readDir(dist)) {
   files[relative(dist, file)] = Array.from(buf);
 }
 const date = new Date();
+const version = pkg.version + (pkg.branch !== 'main' ? `-${pkg.branch}` : '');
+const vs = pkg.version.split('.');
+const versionCode = Number(`${vs[0]}.${vs.slice(1).join('')}`);
 const metadata = JSON.stringify({
-  name,
+  name: pkg.name,
   version,
-  branch,
-  version_code,
-  date: (date).toISOString(),
+  branch: pkg.branch,
+  versionCode,
+  date: date.toISOString(),
   commit: commitId,
   files: hashs
 }, undefined, 2);
@@ -51,4 +53,5 @@ fs.writeFileSync(join(dist, 'metadata.json'), metadata, {
 files['metadata.json'] = metadata;
 const gzip = gzipSync(Buffer.from(JSON.stringify(files)));
 const rpdt = Buffer.concat([FILE_HEAD, gzip]);
-fs.writeFileSync(join(dist, `${name}_${version}_${branch}_${commitId.substring(0, 8)}.rpdt`), rpdt);
+
+fs.writeFileSync(join(dist, `PluginDevtools-${version}.${commitId.substring(0, 8)}.rpdt`), rpdt);
