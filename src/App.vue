@@ -1,21 +1,17 @@
 <script setup lang="ts">
 import Monaco from './components/monaco/index.vue';
-import IconClose from './assets/svg/icon-close.svg';
-import IconMinimize from './assets/svg/icon-minimize.svg';
-import IconMaximize from './assets/svg/icon-maximize.svg';
-import IconMaximizeRestore from './assets/svg/icon-maximize-restore.svg';
 import Options from './components/options/index.vue';
 import { storeToRefs } from 'pinia';
 import { useToolbar } from './hooks/toolbar';
 import { useConfigStore } from './store/config';
 import { onUnmounted } from 'vue';
 
-const { currentFileName, isSave } = storeToRefs(useConfigStore());
+const { currentFileName, isSave, platform } = storeToRefs(useConfigStore());
 const { closeCurrentFile } = useConfigStore();
 const onCreateTemplate = (t: string) => {
   monacoEditor.setValue(t);
 }
-const { isMaximize, setMaximizeOrRestore, setMinimizable, closeWindow } = useToolbar();
+const { isFullscreen } = useToolbar();
 
 onUnmounted(() => {
   closeCurrentFile();
@@ -27,27 +23,19 @@ onUnmounted(() => {
     <ElContainer style="height: 100%;">
       <ElAside id="console"></ElAside>
       <ElContainer class="container">
-        <ElHeader class="header app-drag">
+        <ElHeader :class="['header', 'app-drag', platform, isFullscreen ? 'fullscreen' : '']">
           <div class="left app-no-drag">
+            <div v-if="platform === 'darwin'" class="window-controls-container app-no-drag"></div>
             <Options @create-template="onCreateTemplate" />
           </div>
           <div class="center app-no-drag">
             <p>
-              <span v-if="!isSave">未保存  </span>
+              <span v-if="!isSave">未保存 </span>
               <span>{{ currentFileName }}</span>
             </p>
           </div>
           <div class="right app-no-drag">
-            <button class="rc-button" @click="setMinimizable">
-              <IconMinimize />
-            </button>
-            <button class="rc-button" @click="setMaximizeOrRestore">
-              <IconMaximize v-if="!isMaximize" />
-              <IconMaximizeRestore v-else />
-            </button>
-            <button class="rc-button" @click="closeWindow">
-              <IconClose />
-            </button>
+            <div  v-if="platform !== 'darwin'" class="window-controls-container app-no-drag"></div>
           </div>
         </ElHeader>
         <ElMain class="main">
@@ -71,14 +59,19 @@ onUnmounted(() => {
     height: 100%;
 
     .header {
+      position: absolute;
+      top: 0;
+      left: 0;
       display: flex;
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
       padding: 5px;
+      width: 100%;
       height: 30px;
       color: #D4D4D4;
       background-color: #3C3C3C;
+      z-index: 999;
 
       .center {
         p {
@@ -108,7 +101,33 @@ onUnmounted(() => {
       }
     }
 
+    .header:not(.darwin) {
+      .left .window-controls-container {
+        display: none;
+      }
+
+      &:not(.fullscreen) {
+        .right .window-controls-container {
+          width: 138px;
+        }
+      }
+
+    }
+
+    .header:has(.darwin) {
+      &:not(.fullscreen) {
+        .left .window-controls-container {
+          width: 65px;
+        }
+      }
+
+      .right .window-controls-container {
+        display: none;
+      }
+    }
+
     .main {
+      margin-top: 30px;
       padding: 0;
 
     }

@@ -9,7 +9,8 @@ export const useConfigStore = defineStore('Config', {
       currentWritable: null as FileSystemWritableFileStream | null,
       saveCode: null as string | null,
       isSave: false,
-      pluginType: -1
+      pluginType: -1,
+      platform: null as string | null
     }
   },
   getters: {

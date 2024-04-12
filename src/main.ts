@@ -121,5 +121,8 @@ const initEruda = () => {
 }
 app.mount('#app').$nextTick(() => {
   initEruda();
+  const { platform } = storeToRefs(useConfigStore());
+  platform.value = (new URL(location.href)).searchParams.get('platform');
+  
   postMessage({ payload: 'removeLoading' }, '*');
 });
