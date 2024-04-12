@@ -2,7 +2,7 @@
   "name": "readcat-plugin-devtools",
   "private": true,
   "version": "1.0.0",
-  "branch": "main",
+  "branch": "dev",
   "type": "module",
   "license": "GPL-3.0",
   "scripts": {
