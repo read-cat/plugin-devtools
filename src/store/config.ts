@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
 import { isNull } from '../is';
-import { Event } from '../event';
+import { EventHandler } from '../event';
 export const useConfigStore = defineStore('Config', {
   state() {
     return {
-      _event: null as null | Event,
+      _event: null as null | EventHandler,
       currentFileName: null as string | null,
       currentWritable: null as FileSystemWritableFileStream | null,
       saveCode: null as string | null,
@@ -14,7 +14,7 @@ export const useConfigStore = defineStore('Config', {
     }
   },
   getters: {
-    event(): Event {
+    event(): EventHandler {
       if (isNull(this._event)) {
         throw new Error('event is null');
       }

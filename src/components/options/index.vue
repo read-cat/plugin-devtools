@@ -39,7 +39,7 @@ const {
 
 const { compile } = useCompile();
 
-const { currentFileName, pluginType } = storeToRefs(useConfigStore());
+const { currentFileName, pluginType, event } = storeToRefs(useConfigStore());
 const { closeCurrentFile } = useConfigStore();
 const message = useMessage();
 const submitBookSourceTemplate = () => {
@@ -56,6 +56,10 @@ const submitBookSourceTemplate = () => {
       });
     }).catch(() => { });
   }).catch(() => { });
+}
+
+const connect = () => {
+  event.value.connect();
 }
 </script>
 <script lang="ts">
@@ -155,8 +159,8 @@ export default {
             </ElDropdownItem>
           </ElDropdownMenu>
         </template>
-
       </ElDropdown>
+      <li @click="connect">连接</li>
     </ul>
     <ElDialog v-model="showCreateBookSource" title="创建书源模板" width="500">
       <ElForm ref="createBookSourceFormRef" :model="createBookSourceForm" :rules="createBookSourceFormRules">
@@ -208,7 +212,7 @@ export default {
       border-radius: 5px;
       transition: background-color 0.5s ease;
       outline: none;
-
+      line-height: 100%;
       &:hover {
         background-color: rgba(127, 127, 127, 0.5);
       }
