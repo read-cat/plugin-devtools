@@ -31,7 +31,10 @@ const {
 const {
   runSearch,
   runGetDetail,
-  runGetTextContent
+  runGetTextContent,
+  showSetSearchKeyWindow,
+  showSetDetailPageUrlWindow,
+  showSetChapterWindow
 } = useDebug();
 
 const { compile } = useCompile();
@@ -108,6 +111,28 @@ export default {
             </ElDropdownItem>
             <ElDropdownItem @click="runGetTextContent">
               执行 getTextContent
+            </ElDropdownItem>
+          </ElDropdownMenu>
+          <ElDropdownMenu v-else-if="pluginType === 1">
+            <ElDropdownItem>书城</ElDropdownItem>
+          </ElDropdownMenu>
+          <ElDropdownMenu v-else>
+            <ElDropdownItem>未识别到插件类型</ElDropdownItem>
+          </ElDropdownMenu>
+        </template>
+      </ElDropdown>
+      <ElDropdown size="small">
+        <li>设置</li>
+        <template #dropdown>
+          <ElDropdownMenu v-if="pluginType === 0">
+            <ElDropdownItem @click="showSetSearchKeyWindow">
+              SearchKey
+            </ElDropdownItem>
+            <ElDropdownItem @click="showSetDetailPageUrlWindow">
+              DetailPageUrl
+            </ElDropdownItem>
+            <ElDropdownItem @click="showSetChapterWindow">
+              Chapter
             </ElDropdownItem>
           </ElDropdownMenu>
           <ElDropdownMenu v-else-if="pluginType === 1">
