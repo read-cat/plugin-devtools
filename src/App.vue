@@ -35,7 +35,7 @@ onUnmounted(() => {
             </p>
           </div>
           <div class="right app-no-drag">
-            <div  v-if="platform !== 'darwin'" class="window-controls-container app-no-drag"></div>
+            <div v-if="platform !== 'darwin'" class="window-controls-container app-no-drag"></div>
           </div>
         </ElHeader>
         <ElMain class="main">
@@ -79,7 +79,9 @@ onUnmounted(() => {
 
         }
       }
-
+      .left {
+        display: flex;
+      }
       .right {
         display: flex;
 
@@ -101,29 +103,19 @@ onUnmounted(() => {
       }
     }
 
-    .header:not(.darwin) {
-      .left .window-controls-container {
-        display: none;
+    .header:not(.darwin):not(.fullscreen) {
+      .right .window-controls-container {
+        width: 138px;
       }
 
-      &:not(.fullscreen) {
-        .right .window-controls-container {
-          width: 138px;
-        }
-      }
 
     }
 
-    .header:has(.darwin) {
-      &:not(.fullscreen) {
-        .left .window-controls-container {
-          width: 65px;
-        }
+    .header:is(.darwin):not(.fullscreen) {
+      .left .window-controls-container {
+        width: 65px;
       }
 
-      .right .window-controls-container {
-        display: none;
-      }
     }
 
     .main {
