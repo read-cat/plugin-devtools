@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import Monaco from './components/monaco/index.vue';
+import IconClose from './assets/svg/icon-close.svg';
+import IconMinimize from './assets/svg/icon-minimize.svg';
+import IconMaximize from './assets/svg/icon-maximize.svg';
+import IconMaximizeRestore from './assets/svg/icon-maximize-restore.svg';
 import Options from './components/options/index.vue';
 import { storeToRefs } from 'pinia';
 import { useToolbar } from './hooks/toolbar';
@@ -16,6 +20,12 @@ const { isFullscreen } = useToolbar();
 onUnmounted(() => {
   closeCurrentFile();
 });
+const {
+  isMaximize,
+  setMaximizeOrRestore,
+  setMinimizable,
+  closeWindow
+} = useToolbar();
 </script>
 
 <template>
@@ -35,7 +45,19 @@ onUnmounted(() => {
             </p>
           </div>
           <div class="right app-no-drag">
-            <div v-if="platform !== 'darwin'" class="window-controls-container app-no-drag"></div>
+            <div v-if="platform === 'win32'" class="window-controls-container app-no-drag"></div>
+            <template v-else-if="platform === 'linux'">
+              <button class="rc-button" @click="setMinimizable">
+                <IconMinimize />
+              </button>
+              <button class="rc-button" @click="setMaximizeOrRestore">
+                <IconMaximize v-if="!isMaximize" />
+                <IconMaximizeRestore v-else />
+              </button>
+              <button class="rc-button" @click="closeWindow">
+                <IconClose />
+              </button>
+            </template>
           </div>
         </ElHeader>
         <ElMain class="main">
@@ -79,9 +101,11 @@ onUnmounted(() => {
 
         }
       }
+
       .left {
         display: flex;
       }
+
       .right {
         display: flex;
 
@@ -103,7 +127,7 @@ onUnmounted(() => {
       }
     }
 
-    .header:not(.darwin):not(.fullscreen) {
+    .header:is(.win32):not(.fullscreen) {
       .right .window-controls-container {
         width: 138px;
       }
