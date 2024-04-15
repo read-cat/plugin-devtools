@@ -2,11 +2,16 @@ import { ref } from 'vue';
 import { PluginDevtoolsEventCode } from '../event/event-code';
 import { ElMessageBox } from 'element-plus';
 import { useConfigStore } from '../store/config';
+import { isError } from '../is';
+import { useMessage } from './message';
+import { storeToRefs } from 'pinia';
 
 export const useToolbar = () => {
   const { event } = useConfigStore();
+  const { currentWritable } = storeToRefs(useConfigStore());
   const isMaximize = ref(false);
   const isFullscreen = ref(false);
+  const message = useMessage();
   GLOBAL_IPC.on(PluginDevtoolsEventCode.ASYNC_IS_FULLSCREEN_DEVTOOLS_WINDOW, (_, is) => {
     isFullscreen.value = is;
   });
@@ -21,18 +26,26 @@ export const useToolbar = () => {
     GLOBAL_IPC.send(PluginDevtoolsEventCode.ASYNC_SET_PLUGIN_DEVTOOLS_WINDOW_MINIMIZE);
   }
   let isShowCloseWindow = false;
-  const closeWindow = () => {
+  const closeWindow = async () => {
     if (isShowCloseWindow) {
       return;
     }
     isShowCloseWindow = true;
-    ElMessageBox.confirm('是否关闭该窗口', {
-      confirmButtonText: '关闭',
-      cancelButtonText: '取消',
-      type: 'info'
-    }).then(() => {
+    try {
+      await ElMessageBox.confirm('是否关闭该窗口', {
+        confirmButtonText: '关闭',
+        cancelButtonText: '取消',
+        type: 'info'
+      });
+      if (currentWritable.value) {
+        await currentWritable.value.close();
+      }
       event.send(PluginDevtoolsEventCode.CLOSE_WINDOW);
-    }).catch(() => {}).finally(() => isShowCloseWindow = false);
+    } catch (e) {
+      isError(e) && message.error(e.message);
+    } finally {
+      isShowCloseWindow = false;
+    }
   }
 
   GLOBAL_IPC.on(PluginDevtoolsEventCode.ASYNC_CLOSE_PLUGIN_DEVTOOLS_WINDOW, closeWindow);
