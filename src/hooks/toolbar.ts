@@ -8,7 +8,7 @@ import { storeToRefs } from 'pinia';
 
 export const useToolbar = () => {
   const { event } = useConfigStore();
-  const { currentWritable } = storeToRefs(useConfigStore());
+  const { currentWritable, platform } = storeToRefs(useConfigStore());
   const isMaximize = ref(false);
   const isFullscreen = ref(false);
   const message = useMessage();
@@ -48,7 +48,17 @@ export const useToolbar = () => {
     }
   }
 
-  GLOBAL_IPC.on(PluginDevtoolsEventCode.ASYNC_CLOSE_PLUGIN_DEVTOOLS_WINDOW, closeWindow);
+  if (platform.value !== 'linux') {
+    GLOBAL_IPC.on(PluginDevtoolsEventCode.ASYNC_CLOSE_PLUGIN_DEVTOOLS_WINDOW, async () => {
+      try {
+        currentWritable.value && await currentWritable.value.close();
+      } catch (error) { } finally {
+        event.send(PluginDevtoolsEventCode.CLOSE_WINDOW);
+      }
+    });
+  } else {
+    GLOBAL_IPC.on(PluginDevtoolsEventCode.ASYNC_CLOSE_PLUGIN_DEVTOOLS_WINDOW, closeWindow);
+  }
 
   return {
     isMaximize,
