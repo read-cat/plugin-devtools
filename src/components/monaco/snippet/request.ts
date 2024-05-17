@@ -67,7 +67,7 @@ declare interface IncomingHttpHeaders {
 }
 declare interface RequestConfig {
   /**请求参数 */
-  params?: Record<string, string> | URLSearchParams,
+  params?: Record<string, string | number> | URLSearchParams,
   /**请求头 */
   headers?: IncomingHttpHeaders,
   /**是否开启代理 */
@@ -76,6 +76,8 @@ declare interface RequestConfig {
   charset?: 'UTF8' | 'GBK',
   /**请求参数编码 */
   urlencode?: 'UTF8' | 'GBK'
+  /**最大重定向数, 0为禁止 */
+  maxRedirects?: number,
 }
 declare interface ReadCatResponse {
   /**响应码 */

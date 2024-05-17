@@ -14,6 +14,8 @@ import { useTypeScript } from '../../hooks/typescript';
 import { useMessage } from '../../hooks/message';
 import { storeToRefs } from 'pinia';
 import { useConfigStore } from '../../store/config';
+import NodeCrypto from './snippet/crypto.txt?raw';
+
 const props = defineProps<{
   width?: number | string,
   height?: number | string
@@ -43,6 +45,7 @@ nextTick(() => {
     monaco.languages.typescript.typescriptDefaults.addExtraLib(BookSource, 'booksource.d.ts');
     monaco.languages.typescript.typescriptDefaults.addExtraLib(ReadCat, 'read-cat.d.ts');
     monaco.languages.typescript.typescriptDefaults.addExtraLib(Is, 'is.d.ts');
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(NodeCrypto, 'crypto.d.ts');
     const editor = monaco.editor.create(container, {
       language: 'typescript',
       value: '',

@@ -116,8 +116,9 @@ plugin.exports = class Plugin implements ${type === 'booksource' ? 'BookSource' 
      *                     params(可选): { [key: string]: number | string | boolean } | URLSearchParams,    请求参数
      *                     headers(可选): { [key: string]: string },    请求头
      *                     proxy(可选): boolean    是否开启代理,
-     *                     charset(可选): string    字符集, 默认AUTO, 当出现乱码时请指定字符集
+     *                     charset(可选): string    字符集, 默认为自动获取, 当出现乱码时请指定字符集
      *                     urlencode(可选): string   URL编码, 默认UTF8
+     *                     maxRedirects(可选): number  最大重定向数, 为0时则禁止重定向
      *                   }
      *   return: Promise<{ body, code, headers }>
      *   function post(url, config)
@@ -126,8 +127,9 @@ plugin.exports = class Plugin implements ${type === 'booksource' ? 'BookSource' 
      *                     params(可选): { [key: string]: number | string | boolean }, | URLSearchParams,    请求参数
      *                     headers(可选): { [key: string]: string },    请求头
      *                     proxy(可选): boolean    是否开启代理
-     *                     charset(可选): string    字符集, 默认AUTO, 当出现乱码时请指定字符集
+     *                     charset(可选): string    字符集, 默认为自动获取, 当出现乱码时请指定字符集
      *                     urlencode(可选): string   URL编码, 默认UTF8
+     *                     maxRedirects(可选): number  最大重定向数, 为0时则禁止重定向
      *                   }
      *   return: Promise<{ body, code, headers }>
      * 
@@ -165,6 +167,6 @@ plugin.exports = class Plugin implements ${type === 'booksource' ? 'BookSource' 
   }
 
   ${getFunctionsBody(type)}
-}  
+}
 `;
 }
