@@ -124,6 +124,8 @@ plugin.exports = class Plugin implements ${type === 'booksource' ? 'BookSource' 
      *                     charset(可选): string    字符集, 默认为自动获取, 当出现乱码时请指定字符集
      *                     urlencode(可选): string   URL编码, 默认UTF8
      *                     maxRedirects(可选): number  最大重定向数, 为0时则禁止重定向
+     *                     responseType(可选): 'arraybuffer' | 'text' | 'json'  响应体类型, 默认text
+     *                     signal(可选): AbortSignal  中止信号
      *                   }
      *   return: Promise<{ body, code, headers }>
      *   function post(url, config)
@@ -135,6 +137,8 @@ plugin.exports = class Plugin implements ${type === 'booksource' ? 'BookSource' 
      *                     charset(可选): string    字符集, 默认为自动获取, 当出现乱码时请指定字符集
      *                     urlencode(可选): string   URL编码, 默认UTF8
      *                     maxRedirects(可选): number  最大重定向数, 为0时则禁止重定向
+     *                     responseType(可选): 'arraybuffer' | 'text' | 'json'  响应体类型, 默认text
+     *                     signal(可选): AbortSignal  中止信号
      *                   }
      *   return: Promise<{ body, code, headers }>
      * 
