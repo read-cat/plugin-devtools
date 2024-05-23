@@ -78,6 +78,10 @@ declare interface RequestConfig {
   urlencode?: 'UTF8' | 'GBK'
   /**最大重定向数, 0为禁止 */
   maxRedirects?: number,
+  /**响应体类型 */
+  responseType?: 'arraybuffer' | 'text' | 'json',
+  /**中止信号 */
+  signal?: AbortSignal,
 }
 declare interface ReadCatResponse {
   /**响应码 */

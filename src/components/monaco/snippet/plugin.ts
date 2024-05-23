@@ -26,6 +26,7 @@ declare interface PluginConstructorOptions {
   store: Store;
   cheerio: CheerioModule.load;
   nanoid: () => string;
+  uuid: (noDash?: boolean) => string;
 }
 `;
 export default snippet;

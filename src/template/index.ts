@@ -102,6 +102,11 @@ plugin.exports = class Plugin implements ${type === 'booksource' ? 'BookSource' 
    * 插件请求目标链接
    */
   public static readonly BASE_URL: string = '${baseUrl}';
+  /**
+   * 静态属性 REQUIRE  可选
+   * 要求用户填写的值
+   */
+  public static readonly REQUIRE: Record<string, string> = {};
   private request: ReadCatRequest;
   private store: Store;
   private cheerio: CheerioModule.load;
