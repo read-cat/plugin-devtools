@@ -8,6 +8,7 @@ import Store from './snippet/store';
 import Request from './snippet/request';
 import BookSource from './snippet/booksource';
 import Is from './snippet/is';
+import Timer from './snippet/timer';
 import { isNumber, isString } from '../../is';
 import { debounce, getErrorMessage } from '../../utils';
 import { useTypeScript } from '../../hooks/typescript';
@@ -46,6 +47,7 @@ nextTick(() => {
     monaco.languages.typescript.typescriptDefaults.addExtraLib(ReadCat, 'read-cat.d.ts');
     monaco.languages.typescript.typescriptDefaults.addExtraLib(Is, 'is.d.ts');
     monaco.languages.typescript.typescriptDefaults.addExtraLib(NodeCrypto, 'crypto.d.ts');
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(Timer, 'timer.d.ts');
     const editor = monaco.editor.create(container, {
       language: 'typescript',
       value: '',
