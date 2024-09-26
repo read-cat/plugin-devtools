@@ -16,6 +16,9 @@ import { useMessage } from '../../hooks/message';
 import { storeToRefs } from 'pinia';
 import { useConfigStore } from '../../store/config';
 import NodeCrypto from './snippet/crypto.txt?raw';
+import TTSEngine from './snippet/tts-engine';
+import Buffer from './snippet/buffer.txt?raw';
+import Utils from './snippet/utils';
 
 const props = defineProps<{
   width?: number | string,
@@ -48,6 +51,9 @@ nextTick(() => {
     monaco.languages.typescript.typescriptDefaults.addExtraLib(Is, 'is.d.ts');
     monaco.languages.typescript.typescriptDefaults.addExtraLib(NodeCrypto, 'crypto.d.ts');
     monaco.languages.typescript.typescriptDefaults.addExtraLib(Timer, 'timer.d.ts');
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(TTSEngine, 'tts-engine.d.ts');
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(Buffer, 'buffer.d.ts');
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(Utils, 'utils.d.ts');
     const editor = monaco.editor.create(container, {
       language: 'typescript',
       value: '',
@@ -70,7 +76,8 @@ nextTick(() => {
           exports: null,
           type: {
             BOOK_SOURCE: 0,
-            BOOK_STORE: 1
+            BOOK_STORE: 1,
+            TTS_ENGINE: 2,
           }
         }
         try {

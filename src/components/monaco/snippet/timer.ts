@@ -8,6 +8,7 @@ interface TimerInterface {
 declare const Timer: {
   timeout: (executor: (...args: any[]) => void, ms?: number) => TimerInterface
   interval: (executor: (...args: any[]) => void, ms?: number) => TimerInterface
+  sleep: (ms?: number) => Promise<void>
 }
 `;
 export default snippet;

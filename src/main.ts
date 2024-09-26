@@ -74,12 +74,12 @@ const initEruda = () => {
   style.innerHTML = `
   #eruda {
     width: 350px;
-    .eruda-dev-tools {
-      padding-top: 29px !important;
-    }
-    * {
-      font-family: JetBrainsMonoRegular;
-    }
+  }
+  #eruda .eruda-dev-tools {
+    padding-top: 29px !important;
+  }
+  #eruda * {
+    font-family: JetBrainsMonoRegular;
   }
   .eruda-container {
     z-index: 999 !important;
@@ -87,17 +87,16 @@ const initEruda = () => {
   .eruda-dev-tools {
     width: 350px !important;
     height: 100% !important;
-
-    .luna-tab-tabs-container {
-      height: 29px !important;
-      background-color: #3C3C3C;
-      -webkit-app-region: drag;
-      .luna-tab-item {
-        height: 29px !important;
-        line-height: 29px !important;
-        -webkit-app-region: none;
-      }
-    }
+  }
+  .eruda-dev-tools .luna-tab-tabs-container {
+    height: 29px !important;
+    background-color: #3C3C3C;
+    -webkit-app-region: drag;
+  }
+  .eruda-dev-tools .luna-tab-tabs-container .luna-tab-item {
+    height: 29px !important;
+    line-height: 29px !important;
+    -webkit-app-region: none;
   }
   #eruda-console .eruda-js-input.eruda-active {
     height: 100px !important;
@@ -107,10 +106,8 @@ const initEruda = () => {
   .luna-tab-item[data-id="settings"] {
     display: none !important;
   }
-  .eruda-logs-container {
-    a {
-      pointer-events: none !important;
-    }
+  .eruda-logs-container a {
+    pointer-events: none !important;
   }
   `;
   document.head.appendChild(style);

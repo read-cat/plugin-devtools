@@ -1,5 +1,5 @@
 const snippet = `
-declare interface IncomingHttpHeaders {
+declare interface IncomingHttpHeaders extends Record<string, string> {
   accept?: string | undefined;
   'accept-encoding'?: string | undefined;
   'accept-language'?: string | undefined;
@@ -83,11 +83,11 @@ declare interface RequestConfig {
   /**中止信号 */
   signal?: AbortSignal,
 }
-declare interface ReadCatResponse {
+declare interface ReadCatResponse<R> {
   /**响应码 */
   code: number,
   /**响应体 */
-  body: string,
+  body: R,
   /**响应头 */
   headers: IncomingHttpHeaders
 }
@@ -98,14 +98,14 @@ declare interface ReadCatRequest {
    * @param config 请求配置
    * @returns 响应体
    */
-  get: (url: string, config?: RequestConfig) => Promise<ReadCatResponse>;
+  get: <R = string>(url: string, config?: RequestConfig) => Promise<ReadCatResponse<R>>;
   /**
    * HTTP POST
    * @param url 请求链接
    * @param config 请求配置
    * @returns 响应体
    */
-  post: (url: string, config?: RequestConfig) => Promise<ReadCatResponse>;
+  post: <R = string>(url: string, config?: RequestConfig) => Promise<ReadCatResponse<R>>;
 }
 `;
 export default snippet;

@@ -7,6 +7,8 @@ declare interface PluginType {
    * 书城类
    */
   BOOK_STORE: number;
+  /**TTS引擎 */
+  TTS_ENGINE: number;
 }
 declare interface PluginExports {
   /**
@@ -27,3 +29,5 @@ declare interface PluginConstructorOptions {
   nanoid: () => string;
   uuid: (noDash?: boolean) => string;
 }
+
+declare type SearchFilter = boolean | undefined | ((entity: SearchEntity, searchKey: string, author?: string) => boolean);

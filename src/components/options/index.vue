@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { useCreateBookSource } from './hooks/create-booksource';
 import { useFile } from './hooks/file';
-import { useDebug } from './hooks/debug';
+import { useDebugBookSource } from './hooks/debug/booksource';
 import { ElMessageBox } from 'element-plus';
 import { storeToRefs } from 'pinia';
 import { useConfigStore } from '../../store/config';
 import { useCompile } from './hooks/compile';
 import { useMessage } from '../../hooks/message';
+import { useCreateTTSEngine } from './hooks/create-tts-engine';
+import { useDebugTTSEngine } from './hooks/debug/ttsengine';
 
 const emits = defineEmits<{
   createTemplate: [template: string]
@@ -20,6 +22,14 @@ const {
   createBookSourceFormRules,
   bookSourceTemplate,
 } = useCreateBookSource();
+const {
+  showCreateTTSEngine,
+  createTTSEngineForm,
+  createTTSEngineFormRef,
+  submitCreateTTSEngineForm,
+  createTTSEngineFormRules,
+  ttsEngineTemplate,
+} = useCreateTTSEngine();
 
 const {
   openFile,
@@ -35,7 +45,14 @@ const {
   showSetSearchKeyWindow,
   showSetDetailPageUrlWindow,
   showSetChapterWindow
-} = useDebug();
+} = useDebugBookSource();
+
+const {
+  showSetTextWindow,
+  showSetVoiceWindow,
+  runTransform,
+  runGetVoiceList
+} = useDebugTTSEngine();
 
 const { compile } = useCompile();
 
@@ -50,6 +67,21 @@ const submitBookSourceTemplate = () => {
       confirmButtonText: '创建'
     }).then(() => {
       emits('createTemplate', bookSourceTemplate.value);
+      currentFileName.value = null;
+      closeCurrentFile().catch(e => {
+        message.error(e.message);
+      });
+    }).catch(() => { });
+  }).catch(() => { });
+}
+const submitTTSEngineTemplate = () => {
+  submitCreateTTSEngineForm().then(() => {
+    ElMessageBox.confirm('是否创建模板, 创建后会覆盖当前内容', {
+      type: 'warning',
+      cancelButtonText: '取消',
+      confirmButtonText: '创建'
+    }).then(() => {
+      emits('createTemplate', ttsEngineTemplate.value);
       currentFileName.value = null;
       closeCurrentFile().catch(e => {
         message.error(e.message);
@@ -100,6 +132,9 @@ export default {
             <ElDropdownItem>
               生成书城模板
             </ElDropdownItem>
+            <ElDropdownItem @click="showCreateTTSEngine = true">
+              生成TTS引擎模板
+            </ElDropdownItem>
           </ElDropdownMenu>
         </template>
       </ElDropdown>
@@ -119,6 +154,14 @@ export default {
           </ElDropdownMenu>
           <ElDropdownMenu v-else-if="pluginType === 1">
             <ElDropdownItem>书城</ElDropdownItem>
+          </ElDropdownMenu>
+          <ElDropdownMenu v-else-if="pluginType === 2">
+            <ElDropdownItem @click="runTransform">
+              执行 transform
+            </ElDropdownItem>
+            <ElDropdownItem @click="runGetVoiceList">
+              执行 getVoiceList
+            </ElDropdownItem>
           </ElDropdownMenu>
           <ElDropdownMenu v-else>
             <ElDropdownItem>未识别到插件类型</ElDropdownItem>
@@ -141,6 +184,14 @@ export default {
           </ElDropdownMenu>
           <ElDropdownMenu v-else-if="pluginType === 1">
             <ElDropdownItem>书城</ElDropdownItem>
+          </ElDropdownMenu>
+          <ElDropdownMenu v-else-if="pluginType === 2">
+            <ElDropdownItem @click="showSetVoiceWindow">
+              Voice
+            </ElDropdownItem>
+            <ElDropdownItem @click="showSetTextWindow">
+              Text
+            </ElDropdownItem>
           </ElDropdownMenu>
           <ElDropdownMenu v-else>
             <ElDropdownItem>未识别到插件类型</ElDropdownItem>
@@ -187,6 +238,30 @@ export default {
       <template #footer>
         <ElButton @click="showCreateBookSource = false">取消</ElButton>
         <ElButton type="primary" @click="submitBookSourceTemplate">创建</ElButton>
+      </template>
+    </ElDialog>
+    <ElDialog v-model="showCreateTTSEngine" title="创建TTS引擎模板" width="500">
+      <ElForm ref="createTTSEngineFormRef" :model="createTTSEngineForm" :rules="createTTSEngineFormRules">
+        <ElFormItem label="分组" :label-width="150" prop="group">
+          <ElInput v-model="createTTSEngineForm.group" placeholder="插件分组" autocomplete="off" />
+        </ElFormItem>
+        <ElFormItem label="名称" required :label-width="150" prop="name">
+          <ElInput v-model="createTTSEngineForm.name" placeholder="插件名称" autocomplete="off" />
+        </ElFormItem>
+        <ElFormItem label="版本号" required :label-width="150" prop="version">
+          <ElInput v-model="createTTSEngineForm.version" placeholder="插件版本号, 用于显示" autocomplete="off" />
+        </ElFormItem>
+        <ElFormItem label="版本号代码" required :label-width="150" prop="versionCode">
+          <ElInput v-model.number="createTTSEngineForm.versionCode" type="text" placeholder="插件版本代码, 用于插件版本比较"
+            autocomplete="off" />
+        </ElFormItem>
+        <ElFormItem label="链接" :label-width="150" prop="pluginFileUrl">
+          <ElInput v-model="createTTSEngineForm.pluginFileUrl" placeholder="插件文件链接, 用于插件更新" autocomplete="off" />
+        </ElFormItem>
+      </ElForm>
+      <template #footer>
+        <ElButton @click="showCreateTTSEngine = false">取消</ElButton>
+        <ElButton type="primary" @click="submitTTSEngineTemplate">创建</ElButton>
       </template>
     </ElDialog>
 

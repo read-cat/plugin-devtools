@@ -1,27 +1,18 @@
-import { PluginDevtoolsEventCode } from '../../../event/event-code';
-import { useTypeScript } from '../../../hooks/typescript';
-import { useMessage } from '../../../hooks/message';
-import { isNull, isUndefined } from '../../../is';
-import { useConfigStore } from '../../../store/config';
+import { PluginDevtoolsEventCode } from '../../../../event/event-code';
+import { useMessage } from '../../../../hooks/message';
+import { isNull, isUndefined } from '../../../../is';
+import { useConfigStore } from '../../../../store/config';
 import { ElInput, ElMessageBox } from 'element-plus';
 import { h, ref } from 'vue';
+import { run } from '.';
 
-export const useDebug = () => {
+export const useDebugBookSource = () => {
   const { event } = useConfigStore();
-  const { compile } = useTypeScript();
   const message = useMessage();
   (<any>window).booksource_searchkey = '世界';
   (<any>window).booksource_detailPageUrl = null;
   (<any>window).booksource_chapter = null;
-  
-  const run = (callback: (jscode: string) => void) => {
-    compile(monacoEditor.getValue()).then(jscode => {
-      callback(jscode);
-    }).catch(e => {
-      message.error('编译错误');
-      console.error('编译错误:', e);
-    });
-  }
+
   const runSearch = () => {
     run((jscode) => {
       console.log('执行 search', '搜索关键词:', (<any>window).booksource_searchkey);

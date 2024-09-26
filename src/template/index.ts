@@ -18,26 +18,93 @@ const bookstoreFunctions = `
 
 `;
 
-const getFunctionsBody = (type: string) => {
+const ttsEngineFunctions = `
+  async transform(texts: string[], options: TTSOptions, next: NextCallback, end: EndCallback): Promise<void> {
+    const {
+      signal,
+      start,
+      maxLineWordCount
+    } = options;
+    let _maxLineWordCount = isUndefined(maxLineWordCount) || maxLineWordCount < 100 || maxLineWordCount > 300 ? 300 : maxLineWordCount;
+    const toBuffer = async (text: string) => {
+      // 判断字符串text是否存在中文、英文字母、数字
+      if (!/([\\u4e00-\\u9fa5]|[a-z0-9])+/igm.test(text)) {
+        return Buffer.alloc(0);
+      }
+      // 在此处实现文本转语音(Buffer类型)逻辑，并将音频(Buffer)返回
+    }
+    for (let i = isUndefined(start) ? 0 : start; i < texts.length; i++) {
+      if (signal.aborted) {
+        break;
+      }
+      const text = texts[i];
+      const chunks = chunkArray(Array.from(text), _maxLineWordCount);
+      for (let j = 0; j < chunks.length; j++) {
+        const t = chunks[j].join('');
+        const body = await toBuffer(t);
+        // audio mp3为音频类型，仅支持MP3、WAV、OGG
+        next({
+          blob: new Blob([body], { type: 'audio/mp3' }),
+          index: j
+        }, i);
+      }
+    }
+    end();
+  }
+  async getVoiceList(): Promise<Voice[]> {
+
+  }
+`;
+
+export type PluginType = 'booksource' | 'bookstore' | 'ttsengine';
+
+const getFunctionsBody = (type: PluginType) => {
   switch (type) {
     case 'booksource':
       return booksourceFunctions;
     case 'bookstore': 
       return bookstoreFunctions;
+    case 'ttsengine':
+      return ttsEngineFunctions;
     default:
       return '';
   }
 }
 
+const getType = (type: PluginType) => {
+  switch (type) {
+    case 'ttsengine':
+      return 'plugin.type.TTS_ENGINE';
+    case 'bookstore':
+      return 'plugin.type.BOOK_STORE';
+    case 'booksource':
+    default:
+      return 'plugin.type.BOOK_SOURCE';
+  }
+}
+const getInterface = (type: PluginType) => {
+  switch (type) {
+    case 'ttsengine':
+      return 'TextToSpeechEngine';
+    case 'bookstore':
+      return 'BookStore';
+    case 'booksource':
+    default:
+      return 'BookSource';
+  }
+}
+
+
+
 export const createTemplate = (params: {
   id: string,
-  type: string,
+  type: PluginType,
   group: string,
   name: string,
   version: string,
   versionCode: number,
   pluginFileUrl: string,
-  baseUrl: string
+  baseUrl?: string
 }) => {
   const {
     id,
@@ -58,7 +125,7 @@ export const createTemplate = (params: {
  * import('fs').then().catch();
  * require('fs');
  */
-plugin.exports = class Plugin implements ${type === 'booksource' ? 'BookSource' : 'BookStore'} {
+plugin.exports = class Plugin implements ${getInterface(type)} {
   /**
    * 静态属性 ID  自动生成
    * 该值需符合正则表达式: [A-Za-z0-9_\-]
@@ -70,8 +137,9 @@ plugin.exports = class Plugin implements ${type === 'booksource' ? 'BookSource' 
    * 值类型:
    * plugin.type.BOOK_SOURCE  - 表示该插件为书源类
    * plugin.type.BOOK_STORE   - 表示该插件为书城类
+   * plugin.type.TTS_ENGINE   - 表示该插件为TTS引擎类
    */
-  public static readonly TYPE: number = ${type === 'booksource' ? 'plugin.type.BOOK_SOURCE' : 'plugin.type.BOOK_STORE'};
+  public static readonly TYPE: number = ${getType(type)};
   /**
    * 静态属性 GROUP  必填
    * 插件分组
@@ -98,21 +166,26 @@ plugin.exports = class Plugin implements ${type === 'booksource' ? 'BookSource' 
    */
   public static readonly PLUGIN_FILE_URL: string = '${pluginFileUrl}';
   /**
-   * 静态属性 BASE_URL  必填
+   * 静态属性 BASE_URL  书源、书城类必填
    * 插件请求目标链接
    */
-  public static readonly BASE_URL: string = '${baseUrl}';
+  public static readonly BASE_URL: string = '${baseUrl || ''}';
   /**
    * 静态属性 REQUIRE  可选
    * 要求用户填写的值
    */
   public static readonly REQUIRE: Record<string, string> = {};
+  /**
+   * 书源类搜索结果过滤器  可选
+   */
+  public static readonly SEARCH_FILTER: SearchFilter = void 0;
   private request: ReadCatRequest;
   private store: Store;
   private cheerio: CheerioModule.load;
   private nanoid: () => string;
+  private uuid: (noDash?: boolean) => string;
   constructor(options: PluginConstructorOptions) {
-    const { request, store, cheerio, nanoid } = options;
+    const { request, store, cheerio, nanoid, uuid } = options;
     /**
      * request
      *   function get(url, config)
@@ -156,7 +229,7 @@ plugin.exports = class Plugin implements ${type === 'booksource' ? 'BookSource' 
      *   return Promise<void>
      *   function getStoreValue(key)
      *               key: string
-     *   return Promise<any> (JavaScript基本数据类型)
+     *   return Promise<any | null> (JavaScript基本数据类型)
      *   function removeStoreValue(key)
      *               key: string
      *   return Promise<void>
@@ -173,6 +246,8 @@ plugin.exports = class Plugin implements ${type === 'booksource' ? 'BookSource' 
      * 获取21位随机字符串
      */
     this.nanoid = nanoid;
+
+    this.uuid = uuid;
   }
 
   ${getFunctionsBody(type)}
