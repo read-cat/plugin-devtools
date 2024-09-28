@@ -127,7 +127,7 @@ export const createTemplate = (params: {
  */
 plugin.exports = class Plugin implements ${getInterface(type)} {
   /**
-   * 静态属性 ID  自动生成
+   * 静态属性 ID  若使用插件开发工具生成模板则自动生成
    * 该值需符合正则表达式: [A-Za-z0-9_\-]
    */
   public static readonly ID: string = '${id}';
@@ -179,6 +179,10 @@ plugin.exports = class Plugin implements ${getInterface(type)} {
    * 书源类搜索结果过滤器  可选
    */
   public static readonly SEARCH_FILTER: SearchFilter = void 0;
+  /**
+   * 插件是否启用，为true表示该插件已弃用  可选
+   */
+  public static readonly DEPRECATED: boolean | undefined = void 0;
   private request: ReadCatRequest;
   private store: Store;
   private cheerio: CheerioModule.load;
