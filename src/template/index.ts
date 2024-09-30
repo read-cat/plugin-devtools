@@ -174,7 +174,7 @@ plugin.exports = class Plugin implements ${getInterface(type)} {
    * 静态属性 REQUIRE  可选
    * 要求用户填写的值
    */
-  public static readonly REQUIRE: Record<string, string> = {};
+  public static readonly REQUIRE: Record<string, RequireItem> = {};
   /**
    * 书源类搜索结果过滤器  可选
    */
