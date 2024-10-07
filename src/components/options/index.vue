@@ -9,6 +9,8 @@ import { useCompile } from './hooks/compile';
 import { useMessage } from '../../hooks/message';
 import { useCreateTTSEngine } from './hooks/create-tts-engine';
 import { useDebugTTSEngine } from './hooks/debug/ttsengine';
+import { useCreateBookStore } from './hooks/create-bookstore';
+import { useDebugBookStore } from './hooks/debug/bookstore';
 
 const emits = defineEmits<{
   createTemplate: [template: string]
@@ -22,6 +24,14 @@ const {
   createBookSourceFormRules,
   bookSourceTemplate,
 } = useCreateBookSource();
+const {
+  showCreateBookStore,
+  createBookStoreForm,
+  createBookStoreFormRef,
+  submitCreateBookStoreForm,
+  createBookStoreFormRules,
+  bookStoreTemplate,
+} = useCreateBookStore();
 const {
   showCreateTTSEngine,
   createTTSEngineForm,
@@ -54,9 +64,13 @@ const {
   runGetVoiceList
 } = useDebugTTSEngine();
 
+const {
+  runBookStore
+} = useDebugBookStore();
+
 const { compile } = useCompile();
 
-const { currentFileName, pluginType, event } = storeToRefs(useConfigStore());
+const { currentFileName, pluginType, event, bookStoreConfigKeys } = storeToRefs(useConfigStore());
 const { closeCurrentFile } = useConfigStore();
 const message = useMessage();
 const submitBookSourceTemplate = () => {
@@ -67,6 +81,21 @@ const submitBookSourceTemplate = () => {
       confirmButtonText: '创建'
     }).then(() => {
       emits('createTemplate', bookSourceTemplate.value);
+      currentFileName.value = null;
+      closeCurrentFile().catch(e => {
+        message.error(e.message);
+      });
+    }).catch(() => { });
+  }).catch(() => { });
+}
+const submitBookStoreTemplate = () => {
+  submitCreateBookStoreForm().then(() => {
+    ElMessageBox.confirm('是否创建模板, 创建后会覆盖当前内容', {
+      type: 'warning',
+      cancelButtonText: '取消',
+      confirmButtonText: '创建'
+    }).then(() => {
+      emits('createTemplate', bookStoreTemplate.value);
       currentFileName.value = null;
       closeCurrentFile().catch(e => {
         message.error(e.message);
@@ -129,7 +158,7 @@ export default {
             <ElDropdownItem @click="showCreateBookSource = true">
               生成书源模板
             </ElDropdownItem>
-            <ElDropdownItem>
+            <ElDropdownItem @click="showCreateBookStore = true">
               生成书城模板
             </ElDropdownItem>
             <ElDropdownItem @click="showCreateTTSEngine = true">
@@ -153,7 +182,7 @@ export default {
             </ElDropdownItem>
           </ElDropdownMenu>
           <ElDropdownMenu v-else-if="pluginType === 1">
-            <ElDropdownItem>书城</ElDropdownItem>
+            <ElDropdownItem v-for="key of bookStoreConfigKeys" :key="key" @click="runBookStore(key)">{{ `执行 ${key}` }}</ElDropdownItem>
           </ElDropdownMenu>
           <ElDropdownMenu v-else-if="pluginType === 2">
             <ElDropdownItem @click="runTransform">
@@ -183,7 +212,7 @@ export default {
             </ElDropdownItem>
           </ElDropdownMenu>
           <ElDropdownMenu v-else-if="pluginType === 1">
-            <ElDropdownItem>书城</ElDropdownItem>
+            <ElDropdownItem>无</ElDropdownItem>
           </ElDropdownMenu>
           <ElDropdownMenu v-else-if="pluginType === 2">
             <ElDropdownItem @click="showSetVoiceWindow">
@@ -238,6 +267,33 @@ export default {
       <template #footer>
         <ElButton @click="showCreateBookSource = false">取消</ElButton>
         <ElButton type="primary" @click="submitBookSourceTemplate">创建</ElButton>
+      </template>
+    </ElDialog>
+    <ElDialog v-model="showCreateBookStore" title="创建书城模板" width="500">
+      <ElForm ref="createBookStoreFormRef" :model="createBookStoreForm" :rules="createBookStoreFormRules">
+        <ElFormItem label="分组" :label-width="150" prop="group">
+          <ElInput v-model="createBookStoreForm.group" placeholder="插件分组" autocomplete="off" />
+        </ElFormItem>
+        <ElFormItem label="名称" required :label-width="150" prop="name">
+          <ElInput v-model="createBookStoreForm.name" placeholder="插件名称" autocomplete="off" />
+        </ElFormItem>
+        <ElFormItem label="版本号" required :label-width="150" prop="version">
+          <ElInput v-model="createBookStoreForm.version" placeholder="插件版本号, 用于显示" autocomplete="off" />
+        </ElFormItem>
+        <ElFormItem label="版本号代码" required :label-width="150" prop="versionCode">
+          <ElInput v-model.number="createBookStoreForm.versionCode" type="text" placeholder="插件版本代码, 用于插件版本比较"
+            autocomplete="off" />
+        </ElFormItem>
+        <ElFormItem label="请求目标链接" required :label-width="150" prop="baseUrl">
+          <ElInput v-model="createBookStoreForm.baseUrl" placeholder="插件请求目标链接" autocomplete="off" />
+        </ElFormItem>
+        <ElFormItem label="链接" :label-width="150" prop="pluginFileUrl">
+          <ElInput v-model="createBookStoreForm.pluginFileUrl" placeholder="插件文件链接, 用于插件更新" autocomplete="off" />
+        </ElFormItem>
+      </ElForm>
+      <template #footer>
+        <ElButton @click="showCreateBookStore = false">取消</ElButton>
+        <ElButton type="primary" @click="submitBookStoreTemplate">创建</ElButton>
       </template>
     </ElDialog>
     <ElDialog v-model="showCreateTTSEngine" title="创建TTS引擎模板" width="500">

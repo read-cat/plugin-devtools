@@ -10,7 +10,8 @@ export const useConfigStore = defineStore('Config', {
       saveCode: null as string | null,
       isSave: false,
       pluginType: -1,
-      platform: null as string | null
+      platform: null as string | null,
+      bookStoreConfigKeys: [] as string[],
     }
   },
   getters: {

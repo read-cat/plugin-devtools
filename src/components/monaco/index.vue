@@ -9,7 +9,7 @@ import Request from './snippet/request';
 import BookSource from './snippet/booksource';
 import Is from './snippet/is';
 import Timer from './snippet/timer';
-import { isNumber, isString } from '../../is';
+import { isFunction, isNumber, isString } from '../../is';
 import { debounce, getErrorMessage } from '../../utils';
 import { useTypeScript } from '../../hooks/typescript';
 import { useMessage } from '../../hooks/message';
@@ -19,6 +19,7 @@ import NodeCrypto from './snippet/crypto.txt?raw';
 import TTSEngine from './snippet/tts-engine';
 import Buffer from './snippet/buffer.txt?raw';
 import Utils from './snippet/utils';
+import BookStore from './snippet/bookstore';
 
 const props = defineProps<{
   width?: number | string,
@@ -37,7 +38,7 @@ if (isString(props.height)) {
   _height = `${props.height}px`;
 }
 const { compile } = useTypeScript();
-const { pluginType, saveCode, isSave } = storeToRefs(useConfigStore());
+const { pluginType, saveCode, isSave, bookStoreConfigKeys } = storeToRefs(useConfigStore());
 const message = useMessage();
 nextTick(() => {
   const container = document.querySelector<HTMLElement>('#code-container');
@@ -54,6 +55,7 @@ nextTick(() => {
     monaco.languages.typescript.typescriptDefaults.addExtraLib(TTSEngine, 'tts-engine.d.ts');
     monaco.languages.typescript.typescriptDefaults.addExtraLib(Buffer, 'buffer.d.ts');
     monaco.languages.typescript.typescriptDefaults.addExtraLib(Utils, 'utils.d.ts');
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(BookStore, 'bookstore.d.ts');
     const editor = monaco.editor.create(container, {
       language: 'typescript',
       value: '',
@@ -84,8 +86,34 @@ nextTick(() => {
           const func = new Function('plugin', jscode);
           func(plugin);
           pluginType.value = isNumber((<any>plugin.exports).TYPE) ? (<any>plugin.exports).TYPE : -1;
-        } catch (e) {
 
+          if (pluginType.value === 1) {
+            const bookStoreInstance =  new (<any>plugin.exports)({
+              request: {
+                get: () => Promise.resolve(null),
+                post: () => Promise.resolve(null),
+              },
+              store: {
+                getStoreValue: () => Promise.resolve(null),
+                setStoreValue: () => Promise.resolve(null),
+                removeStoreValue: () => Promise.resolve(null),
+              },
+              cheerio: () => null,
+              nanoid: () => null,
+              uuid: () => null
+            });
+            const config = bookStoreInstance.config;
+            const keys = [];
+            for (const key of Object.keys(config)) {
+              if (Object.hasOwn(config, key) && isFunction(config[key])) {
+                keys.push(key);
+              }
+            }
+            bookStoreConfigKeys.value = keys;
+            
+          }
+        } catch (e) {
+          
         }
       }).catch((e: any) => {
         message.error(`Plugin type detection error: ${getErrorMessage(e)}`);

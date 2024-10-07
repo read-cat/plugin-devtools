@@ -15,7 +15,11 @@ const booksourceFunctions = `
   }
 `;
 const bookstoreFunctions = `
-
+  get config(): Record<string, () => Promise<BookStoreItem[]>> {
+    return {
+      
+    }
+  }
 `;
 
 const ttsEngineFunctions = `
